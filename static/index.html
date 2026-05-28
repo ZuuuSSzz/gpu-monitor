@@ -1,1 +1,88 @@
-<html><body>placeholder</body></html>
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>server.monitor</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-name">server<span class="accent">.monitor</span></span>
+      <span class="sys" id="sys-line">connecting…</span>
+    </div>
+    <div class="top-right">
+      <span id="badge" class="badge badge-ok">● HEALTHY</span>
+      <button id="theme-toggle" class="iconbtn" title="Toggle theme" aria-label="Toggle theme">◐</button>
+    </div>
+  </header>
+
+  <main class="grid">
+    <!-- KPI tiles -->
+    <section class="kpis">
+      <div class="kpi" id="kpi-cpu"><div class="kpi-label">CPU</div><div class="ring-wrap"></div><div class="kpi-spark"></div></div>
+      <div class="kpi" id="kpi-gpu"><div class="kpi-label">GPU</div><div class="ring-wrap"></div><div class="kpi-spark"></div></div>
+      <div class="kpi" id="kpi-ram"><div class="kpi-label">RAM</div><div class="ring-wrap"></div><div class="kpi-spark"></div></div>
+      <div class="kpi" id="kpi-net"><div class="kpi-label">NET</div><div class="kpi-value mono"><span id="kpi-net-val">— MB/s</span></div><div class="kpi-spark"></div></div>
+    </section>
+
+    <!-- CPU card -->
+    <section class="card cpu-card">
+      <div class="card-head"><h2>CPU</h2><span class="card-sub mono" id="cpu-sub">—</span></div>
+      <div class="cpu-body">
+        <div class="cpu-ring-slot"></div>
+        <div class="cpu-meta">
+          <div class="kv"><span>Frequency</span><span class="mono" id="cpu-freq">—</span></div>
+          <div class="kv"><span>Load 1/5/15m</span><span class="mono" id="cpu-load">—</span></div>
+          <div class="kv"><span>Processes</span><span class="mono" id="cpu-procs">—</span></div>
+        </div>
+      </div>
+      <h3 class="subhead">Per-core</h3>
+      <div class="cores" id="cores"></div>
+    </section>
+
+    <!-- GPU cards container -->
+    <section class="gpus" id="gpus"></section>
+
+    <!-- RAM + Disk/Net row -->
+    <section class="card mem-card">
+      <div class="card-head"><h2>Memory</h2><span class="card-sub mono" id="ram-sub">—</span></div>
+      <div class="bar-row"><span class="bar-label">RAM</span><div class="bar"><div class="bar-fill" id="ram-bar"></div></div><span class="bar-val mono" id="ram-pct">—</span></div>
+      <div class="bar-row"><span class="bar-label">Swap</span><div class="bar"><div class="bar-fill" id="swap-bar"></div></div><span class="bar-val mono" id="swap-pct">—</span></div>
+      <div class="kv-grid">
+        <div class="kv"><span>Used</span><span class="mono" id="ram-used">—</span></div>
+        <div class="kv"><span>Cached</span><span class="mono" id="ram-cached">—</span></div>
+        <div class="kv"><span>Available</span><span class="mono" id="ram-avail">—</span></div>
+        <div class="kv"><span>Total</span><span class="mono" id="ram-total">—</span></div>
+      </div>
+    </section>
+
+    <section class="card net-card">
+      <div class="card-head"><h2>Disk &amp; Network</h2></div>
+      <div class="bar-row"><span class="bar-label">Disk /</span><div class="bar"><div class="bar-fill" id="disk-bar"></div></div><span class="bar-val mono" id="disk-pct">—</span></div>
+      <div class="kv"><span>Disk</span><span class="mono" id="disk-ut">—</span></div>
+      <div class="kv"><span>⬇ Download</span><span class="mono accent" id="net-down">—</span></div>
+      <div class="kv"><span>⬆ Upload</span><span class="mono" id="net-up">—</span></div>
+      <canvas id="net-spark" class="net-spark"></canvas>
+    </section>
+
+    <!-- Top procs -->
+    <section class="card procs-card">
+      <div class="card-head"><h2>Top processes</h2><span class="card-sub">by CPU %</span></div>
+      <table class="procs">
+        <thead><tr><th>PID</th><th>User</th><th>Name</th><th class="r">CPU %</th><th class="r">MEM MB</th></tr></thead>
+        <tbody id="procs-body"></tbody>
+      </table>
+    </section>
+  </main>
+
+  <footer class="foot" id="foot">connecting…</footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="/static/app.js"></script>
+</body>
+</html>
