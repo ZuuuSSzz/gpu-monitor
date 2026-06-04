@@ -5,6 +5,7 @@
   let backoff = 1000;
   let gpusBuilt = false;
   let gpuCount = 0;
+  let lastStatus = null;
 
   // ---------------- helpers ----------------
   const $ = (id) => document.getElementById(id);
@@ -70,8 +71,11 @@
     txt.textContent = Math.round(pct) + "%";
   }
 
+  const chartReady = typeof Chart !== "undefined";
+
   // ---------------- sparklines ----------------
   function makeSpark(parent, color) {
+    if (!chartReady) return null;
     let canvas = parent.querySelector("canvas");
     if (!canvas) {
       canvas = document.createElement("canvas");
@@ -177,6 +181,13 @@
     const map = { OK: "ok", Busy: "busy", Overloaded: "crit" };
     badge.className = "badge badge-" + (map[d.status] || "ok");
     badge.textContent = "● " + (d.status || "").toUpperCase();
+    if (d.status !== lastStatus) {
+      void badge.offsetWidth; // restart animation
+      badge.classList.add("flash");
+      lastStatus = d.status;
+    } else {
+      badge.classList.remove("flash");
+    }
 
     // KPI rings
     setRing(charts.cpuRing, d.cpu.total);
@@ -254,14 +265,14 @@
   // ---------------- websocket ----------------
   async function connect() {
     try {
-      const sys = await fetch("/api/system", { credentials: "include" }).then(r => {
-        if (!r.ok) throw new Error("auth");
+      const sys = await fetch("/api/system").then(r => {
+        if (!r.ok) throw new Error("system info");
         return r.json();
       });
       $("sys-line").textContent =
         `${sys.hostname} · ${sys.os} · NVIDIA ${sys.driver || "—"} · CUDA ${sys.cuda || "—"}`;
       const proto = location.protocol === "https:" ? "wss:" : "ws:";
-      const url = `${proto}//${location.host}/ws/stats?token=${encodeURIComponent(sys.ws_token)}`;
+      const url = `${proto}//${location.host}/ws/stats`;
       ws = new WebSocket(url);
       ws.onopen = () => { backoff = 1000; };
       ws.onmessage = (e) => {
@@ -310,21 +321,26 @@
 
     // Net chart in the disk/net card (dual line)
     const netCanvas = $("net-spark");
-    charts.netSpark = new Chart(netCanvas.getContext("2d"), {
-      type: "line",
-      data: {
-        labels: Array(SPARK_LEN).fill(""),
-        datasets: [
-          { data: Array(SPARK_LEN).fill(0), borderColor: "#3ddc84", backgroundColor: "#3ddc8422", fill: true, tension: 0.35, pointRadius: 0, borderWidth: 1.5 },
-          { data: Array(SPARK_LEN).fill(0), borderColor: "#4d9fff", backgroundColor: "#4d9fff22", fill: true, tension: 0.35, pointRadius: 0, borderWidth: 1.5 },
-        ],
-      },
-      options: {
-        responsive: true, maintainAspectRatio: false, animation: false,
-        plugins: { legend: { display: false } },
-        scales: { x: { display: false }, y: { display: false, min: 0 } },
-      },
-    });
+    const netWrap = netCanvas && netCanvas.closest(".spark-wrap");
+    if (chartReady && netCanvas) {
+      charts.netSpark = new Chart(netCanvas.getContext("2d"), {
+        type: "line",
+        data: {
+          labels: Array(SPARK_LEN).fill(""),
+          datasets: [
+            { data: Array(SPARK_LEN).fill(0), borderColor: "#3ddc84", backgroundColor: "#3ddc8422", fill: true, tension: 0.35, pointRadius: 0, borderWidth: 1.5 },
+            { data: Array(SPARK_LEN).fill(0), borderColor: "#4d9fff", backgroundColor: "#4d9fff22", fill: true, tension: 0.35, pointRadius: 0, borderWidth: 1.5 },
+          ],
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false, animation: false,
+          plugins: { legend: { display: false } },
+          scales: { x: { display: false }, y: { display: false, min: 0 } },
+        },
+      });
+    } else if (netWrap) {
+      netWrap.style.display = "none";
+    }
 
     connect();
   });

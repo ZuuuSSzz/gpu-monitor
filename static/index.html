@@ -4,6 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>server.monitor</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230a0c10'/%3E%3Cpath d='M5 19l5-7 4 5 4-9 5 11' fill='none' stroke='%233ddc84' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
@@ -16,7 +17,7 @@
       <span class="sys" id="sys-line">connecting…</span>
     </div>
     <div class="top-right">
-      <span id="badge" class="badge badge-ok">● HEALTHY</span>
+      <span id="badge" class="badge badge-off" role="status" aria-live="polite">● —</span>
       <button id="theme-toggle" class="iconbtn" title="Toggle theme" aria-label="Toggle theme">◐</button>
     </div>
   </header>
@@ -67,7 +68,9 @@
       <div class="kv"><span>Disk</span><span class="mono" id="disk-ut">—</span></div>
       <div class="kv"><span>⬇ Download</span><span class="mono accent" id="net-down">—</span></div>
       <div class="kv"><span>⬆ Upload</span><span class="mono" id="net-up">—</span></div>
-      <canvas id="net-spark" class="net-spark"></canvas>
+      <div class="spark-wrap" aria-hidden="true">
+        <canvas id="net-spark" class="net-spark"></canvas>
+      </div>
     </section>
 
     <!-- Top procs -->

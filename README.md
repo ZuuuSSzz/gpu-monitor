@@ -2,22 +2,18 @@
 
 Live single-page dashboard for CPU / RAM / GPU / Disk / Network on a Linux server. WebSocket-driven. Read-only.
 
+> **No authentication.** This dashboard exposes hostnames, process names, and resource data to anyone who can reach the port. Run it only on a trusted internal network (bind to a private interface or localhost).
+
 ## Quick start
 
 ```bash
 pip install -r requirements.txt
 cp .env.example .env
 
-# Generate a bcrypt user (paste output into MONITOR_USERS in .env)
-python hash_pw.py
-
-# Generate a TOKEN_SECRET (paste output into .env)
-python -c "import secrets;print(secrets.token_urlsafe(48))"
-
 uvicorn monitor:app --host 0.0.0.0 --port 8000
 ```
 
-Open `http://<host>:8000/`. Use the credentials you created.
+Open `http://<host>:8000/`.
 
 ## Production
 
@@ -53,10 +49,10 @@ monitor.example.com {
 
 ## Endpoints
 
-- `GET /` — Dashboard (Basic auth).
-- `GET /api/system` — System info + short-lived WS token (Basic auth).
-- `WS /ws/stats?token=…` — Live frames (~every 2s).
-- `GET /healthz` — Liveness (no auth).
+- `GET /` — Dashboard.
+- `GET /api/system` — System info.
+- `WS /ws/stats` — Live frames (~every 2s).
+- `GET /healthz` — Liveness.
 
 ## Tests
 
