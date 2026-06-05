@@ -15,6 +15,30 @@ uvicorn monitor:app --host 0.0.0.0 --port 8000
 
 Open `http://<host>:8000/`.
 
+## Docker
+
+Requires the [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html)
+on the host for GPU stats. Without it the dashboard still runs and shows
+CPU / RAM / disk / network (GPU section reports `nvml_ok: false`).
+
+```bash
+# Build and run with GPU access
+docker compose up -d --build
+```
+
+Open `http://127.0.0.1:8000/` (compose binds to localhost — this dashboard has no auth).
+
+Without compose:
+
+```bash
+docker build -t gpu-monitor .
+docker run -d --name gpu-monitor --gpus all -p 127.0.0.1:8000:8000 gpu-monitor
+```
+
+CPU/RAM-only (no GPU): drop `--gpus all`, or remove the `deploy:` block from `docker-compose.yml`.
+
+Tunables via env: `POLL_INTERVAL` (seconds), `LOG_LEVEL`.
+
 ## Production
 
 Run a single uvicorn worker — the stats collector caches state per process. Put nginx or Caddy in front for TLS.

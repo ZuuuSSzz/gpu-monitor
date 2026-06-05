@@ -1,0 +1,23 @@
+services:
+  monitor:
+    build: .
+    image: gpu-monitor:latest
+    container_name: gpu-monitor
+    restart: unless-stopped
+    ports:
+      # Host:Container. Published on all interfaces for LAN access.
+      # WARNING: this dashboard has NO auth — only do this on a trusted
+      # network. For localhost-only, use "127.0.0.1:8000:8000" instead.
+      - "8000:8000"
+    environment:
+      POLL_INTERVAL: "2.0"
+      LOG_LEVEL: "INFO"
+    # GPU access via the NVIDIA Container Toolkit. Remove this whole block
+    # to run CPU/RAM-only (the app degrades gracefully without a GPU).
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
