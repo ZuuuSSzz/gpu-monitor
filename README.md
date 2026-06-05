@@ -26,7 +26,9 @@ CPU / RAM / disk / network (GPU section reports `nvml_ok: false`).
 docker compose up -d --build
 ```
 
-Open `http://127.0.0.1:8000/` (compose binds to localhost — this dashboard has no auth).
+Open `http://<host>:8000/`. Compose publishes on all interfaces (`8000:8000`) for
+LAN access — this dashboard has **no auth**, so only run it on a trusted network.
+For localhost-only, change the port mapping in `docker-compose.yml` to `127.0.0.1:8000:8000`.
 
 Without compose:
 
